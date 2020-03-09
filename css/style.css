@@ -1,0 +1,286 @@
+body {
+  user-select: none;
+}
+
+#overlayForPointer {
+  cursor: pointer;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 99999;
+}
+
+.plain {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, .0);
+}
+
+#container {}
+
+#actionsContainer,
+#recastTimeContainer,
+#timeDisplayContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/*==
+  アイコン用
+==*/
+
+.iconEnemyWrapper {
+  grid-column: 2/3;
+  grid-row: 1/2;
+}
+
+.iconEnemy {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: -3px;
+}
+
+.iconEnemy > img {
+  width: 100%;
+}
+
+.iconContainer {
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.iconFrame {
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  background: url(../res/Action_background.png) no-repeat 4px 2px;
+  -moz-background-size: 40px 40px;
+  -o-background-size: 40px 40px;
+  -webkit-background-size: 40px 40px;
+  background-size: 40px 40px;
+  vertical-align: middle;
+  margin-right: -3px;
+}
+
+.iconFrame::after {
+  content: "";
+  background: url(../res/Action_overlay_glassy.png) no-repeat;
+  width: 48px;
+  height: 48px;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+div.iconFrame img {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  margin-left: -20px;
+  display: block;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+}
+
+.iconEnemyWrapper,
+.iconWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+/*==
+  目盛り用
+==*/
+
+#timeScaleContainer {
+  position: relative;
+  grid-column: 1/4;
+  grid-row: 2/3;
+  /*  background-color: rgba(255, 128, 0, .25);*/
+}
+
+.timeScale {
+  border-bottom: solid 1px gray;
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  height: 1px;
+}
+
+.time {
+  position: absolute;
+  bottom: 0;
+}
+
+
+.horizontalLine {
+  border-bottom: dashed 1px lightgray;
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+  height: 1px;
+}
+
+/*==
+  コンテナ用
+==*/
+
+#container {
+  border: 1px solid black;
+  position: relative;
+  display: grid;
+  width: 1000px;
+  grid-template-columns: 64px 128px auto;
+  grid-template-rows: 64px auto;
+}
+
+#actionIconContainer {
+  display: grid;
+  grid-column: 3/4;
+  grid-row: 1/2;
+  grid-template-columns: repeat(auto-fill, 64px);
+  grid-template-rows: 64px;
+  height: 64px;
+}
+
+/*====*/
+
+/*==
+  アクション用
+==*/
+
+.gauge {
+  position: absolute;
+  width: 48px;
+  top: 0;
+  margin: auto;
+  top: 0;
+  right: 0;
+  left: 0;
+  opacity: .75;
+}
+
+.floatingGauge {
+  position: fixed;
+  margin: 0;
+}
+
+.holdingGauge {
+  opacity: 1;
+}
+
+.effectTime,
+.recastTime {
+  border-style: solid;
+  border-width: 1px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.effectTime {
+  box-sizing: border-box;
+  border-color: #8c8;
+  background-color: #afa;
+}
+
+.recastTime {
+  box-sizing: border-box;
+  border-color: #888;
+  background-color: #aaa;
+}
+
+.previewGauge {
+  opacity: .5;
+  position: absolute;
+}
+
+.gaugeContainer {
+  overflow: hidden;
+  position: relative;
+  /*  background-color: rgba(255, 255, 0, .25);*/
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+}
+
+#gaugeWrapper {
+  position: relative;
+  grid-column: 3/4;
+  grid-row: 2/3;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 64px);
+  grid-template-rows: auto;
+}
+
+/*==
+  敵アクション用
+==*/
+
+#enemyActionContainer {
+  position: relative;
+  /*  background-color: rgba(0, 255, 0, .25);*/
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  grid-column: 2/3;
+  grid-row: 2/3;
+}
+
+.enemyAction {
+  box-sizing: border-box;
+  font-size: 80%;
+  padding: 0 2px;
+  line-height: 120%;
+  /*
+  border-style: solid;
+  border-width: 1px;
+*/
+  max-width: 100%;
+  position: absolute;
+  left: 0;
+}
+
+.hit {
+  /*  border-color: lightcoral;*/
+  background-color: lightpink;
+}
+
+.cast {
+  /*  border-color: yellow;*/
+  background-color: lemonchiffon;
+}
+
+/*====*/
+
+.hidden {
+  display: none !important;
+}

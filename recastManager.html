@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>リキャスト管理つーる</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+  <div id="overlayForPointer" class="hidden"></div>
+  <select name="example" id="input">
+    <option value="ナイト">ナイト</option>
+    <option value="選択肢2">選択肢2</option>
+    <option value="選択肢3">選択肢3</option>
+  </select>
+  <button id="btn">button</button>
+  <select name="example" id="input2">
+    <option value="希望の園エデン零式：共鳴編1">希望の園エデン零式：共鳴編1</option>
+    <option value="希望の園エデン零式：共鳴編2">希望の園エデン零式：共鳴編2</option>
+    <option value="希望の園エデン零式：共鳴編3" disabled>希望の園エデン零式：共鳴編3</option>
+    <option value="希望の園エデン零式：共鳴編4" disabled>希望の園エデン零式：共鳴編4</option>
+  </select>
+  <button id="btn2">button</button>
+  <!--
+  <div id="container" class="plain">
+    <div id="actionsContainer" class="plain">
+    </div>
+    <div id="recastTimeContainer" class="plain"></div>
+    <div id="timeDisplayContainer" class="plain"></div>
+  </div>
+-->
+  <div id="container">
+    <div class="iconEnemyWrapper">
+      <div class="iconEnemy">
+        <img class="img" src="./res/enemy.png" alt="">
+      </div>
+    </div>
+    <div id="gaugeWrapper">
+    </div>
+    <div id="actionIconContainer"></div>
+    <div id="timeScaleContainer"></div>
+    <div id="enemyActionContainer"></div>
+  </div>
+  <template id="gaugeTemplate">
+      <div class="gauge">
+        <div class="effectTime"></div>
+        <div class="recastTime"></div>
+      </div>
+ </template>
+  <template id="actionIcon">
+   <div class="iconWrapper">
+    <div class="iconContainer">
+      <div class="iconFrame">
+          <img class="img" src="" alt="">
+      </div>
+     </div>
+   </div>
+  </template>
+  <template id="timeScale">
+    <div class="timeScale">
+      <span class="time"></span>
+    </div>
+  </template>
+  <script type="text/javascript" src="./js/database.js"></script>
+  <script type="text/javascript" src="./js/main.js"></script>
+</body>
+
+</html>
