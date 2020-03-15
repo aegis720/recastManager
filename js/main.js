@@ -123,21 +123,25 @@ class GaugeList {
     return false;
   }
   _isOverlapping(time, excludeGauge) {
+    if (!this.getGaugeByTime(time, excludeGauge)) {
+      return false;
+    }
+    return true;
+  }
+  getGaugeByTime(time, excludeGauge) {
     const start = time,
       end = start + this.getRecastTime();
-    for (let gauge of this.list) {
+    for (let gauge of this.getList()) {
       if (gauge === excludeGauge) continue;
       // 使用した時間
       const targetStart = gauge.getUsedTime();
       // リキャが返ってくる時間
       const targetEnd = targetStart + gauge.getRecastTime();
-
-      console.log(start, end, targetStart, targetEnd);
       if (targetStart < end && start < targetEnd) {
-        return true;
-      } else {}
+        return gauge;
+      }
     }
-    return false;
+    return undefined;
   }
   getEffectTime() {
     return this.effectTime;
@@ -264,7 +268,6 @@ class GaugeElement {
     this._bindedMouseMove = this._mouseMove.bind(this);
 
     this.element = this._createGaugeElement(gauge.getUsedTime(), gauge.getEffectTime(), gauge.getRecastTime());
-    console.log(this.element);
     this.element.addEventListener('mousedown', this._mouseDown.bind(this));
 
   }
@@ -306,7 +309,6 @@ class GaugeElement {
     document.removeEventListener('mousemove', this._bindedMouseMove, false);
   }
   _mouseMove(e) {
-    console.log('mousemove', e.offsetY);
     // クリック開始地点と現在のマウスの位置との距離を比較する
     // √{(width1 - width2)^2+(height1 - height2)^2}
     let distance = Math.floor(Math.sqrt((this.pageX - e.pageX) ** 2 + (this.pageY - e.pageY) ** 2));
@@ -336,25 +338,55 @@ class GaugeElement {
   }
   // ゲージを移動させる
   _moveGauge(absoluteY) {
+    // コンテナ内におけるゲージのX座標[px]
     let movementAmount = 0;
     // マウスのY座標分を足す
     movementAmount += absoluteY;
-    // クリック地点までずらす
-    movementAmount -= this.offsetY;
     // コンテナ上部の余白を引く
     movementAmount -= this.containerOffsetTop;
     // PIXELS_PER_SECONDSで割った余りを引く
     movementAmount -= movementAmount % CONSTANT.PIXELS_PER_SECONDS;
+    // クリック地点までずらす
+    movementAmount -= this.offsetY;
 
-    let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS - 1);
-    // リキャストタイム末尾が頂点より上だったら一秒分だけはみ出るようにする
-    if (movementAmount < gaugeEnd) movementAmount = gaugeEnd + CONSTANT.PIXELS_PER_SECONDS;
+    // データ内部のゲージの位置[秒]
+    let currentSeconds = (movementAmount) / CONSTANT.PIXELS_PER_SECONDS;
 
-    // ゲージが重複しているまたはmovementAmountと値が同じであれば
-    if (!this.gauge.parent.canMoveGauge(this.gauge, movementAmount / CONSTANT.PIXELS_PER_SECONDS) ||
-      this.movementAmount == movementAmount) {
+    // movementAmountの値が変わらなかったら終了
+    if (this.movementAmount == movementAmount) {
       return false;
     }
+
+    let overlappingGauge = this.gauge.parent.getGaugeByTime(currentSeconds, this.gauge);
+    // ゲージが重複していたら詰めて配置する
+    if (overlappingGauge) {
+      const median = Math.floor(this.gauge.getRecastTime() / 2);
+      const usedTime = overlappingGauge.getUsedTime();
+      const mousePosYSec = (movementAmount + this.offsetY) / CONSTANT.PIXELS_PER_SECONDS;
+      if (mousePosYSec > usedTime + median) {
+        // マウスの位置が中央値より下だったら
+        // 重なっているゲージの上に詰める
+        movementAmount = (usedTime + this.gauge.getRecastTime()) * CONSTANT.PIXELS_PER_SECONDS;
+      } else {
+        // マウスの位置が中央より上だったら
+        // 重なっているゲージの上に詰める
+        movementAmount = (usedTime - this.gauge.getRecastTime()) * CONSTANT.PIXELS_PER_SECONDS;
+      }
+
+      currentSeconds = (movementAmount) / CONSTANT.PIXELS_PER_SECONDS;
+      overlappingGauge = this.gauge.parent.getGaugeByTime(currentSeconds, this.gauge);
+      // 移動先にもゲージがあった場合は移動しない
+      if (overlappingGauge) return false;
+      // ゲージ末尾が頂点より上だったら移動しない
+      let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS - 1);
+      if (movementAmount < gaugeEnd) return false;
+    }
+
+
+    let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS - 1);
+    // ゲージ末尾が頂点より上だったら一秒分だけはみ出るようにする
+    if (movementAmount < gaugeEnd) movementAmount = gaugeEnd + CONSTANT.PIXELS_PER_SECONDS;
+
     if (!this.moved) this.moved = true;
     // movementAmountを更新
     this.movementAmount = movementAmount;
