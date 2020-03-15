@@ -1,0 +1,5 @@
+const CONSTANT = {
+  PIXELS_PER_SECONDS: 6,
+  MAX_TIME_LENGTH: 900
+};
+export default CONSTANT;
