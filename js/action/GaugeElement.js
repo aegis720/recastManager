@@ -21,7 +21,6 @@ export default class GaugeElement {
 
     this.element = this._createGaugeElement(gauge.getUsedTime(), gauge.getEffectTime(), gauge.getRecastTime());
     this.element.addEventListener('mousedown', this._mouseDown.bind(this));
-
   }
   _usedTimeToPX(usedTime) {
     return (CONSTANT.PIXELS_PER_SECONDS * usedTime) + 'px';
@@ -39,7 +38,7 @@ export default class GaugeElement {
   }
   _mouseDown(e) {
     e.stopPropagation();
-    console.log('mousedown', e);
+    console.log('mousedown', this.gauge.getUsedTime());
     // クリックした座標を記憶しておく
     console.log(e.offsetY);
     this.offsetX = e.offsetX;
@@ -96,8 +95,6 @@ export default class GaugeElement {
     movementAmount += absoluteY;
     // コンテナ上部の余白を引く
     movementAmount -= this.containerOffsetTop;
-    // PIXELS_PER_SECONDSで割った余りを引く
-    movementAmount -= movementAmount % CONSTANT.PIXELS_PER_SECONDS;
     // クリック地点までずらす
     movementAmount -= this.offsetY;
 
@@ -135,11 +132,16 @@ export default class GaugeElement {
     }
 
 
-    let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS - 1);
+    let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS);
+    console.log('gaugeEnd:', gaugeEnd, movementAmount);
     // ゲージ末尾が頂点より上だったら一秒分だけはみ出るようにする
-    if (movementAmount < gaugeEnd) movementAmount = gaugeEnd + CONSTANT.PIXELS_PER_SECONDS;
+    if (movementAmount <= gaugeEnd) movementAmount = gaugeEnd + CONSTANT.PIXELS_PER_SECONDS;
 
     if (!this.moved) this.moved = true;
+
+    // PIXELS_PER_SECONDSで割った余りを引く
+    movementAmount -= movementAmount % CONSTANT.PIXELS_PER_SECONDS;
+
     // movementAmountを更新
     this.movementAmount = movementAmount;
 
@@ -162,7 +164,9 @@ export default class GaugeElement {
       // 動いたフラグがtrueならgaugeを移動させる
       if (this.moved) {
         this.moved = false;
-        this.gauge.parent.tryMoveGauge(this.gauge, this.movementAmount / CONSTANT.PIXELS_PER_SECONDS);
+        console.log(this.movementAmount / CONSTANT.PIXELS_PER_SECONDS);
+        const seconds = Math.floor(this.movementAmount / CONSTANT.PIXELS_PER_SECONDS)
+        this.gauge.parent.tryMoveGauge(this.gauge, seconds);
 
       }
       this.element.classList.remove('holdingGauge');

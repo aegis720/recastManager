@@ -6,8 +6,14 @@ export default class GaugeList {
     this.recastTime = recastTime;
     this.list = [];
   }
-  tryPushGauge(usedTime) {
+  canPushGauge(usedTime) {
     if (!(this._isOverlapping(usedTime))) {
+      return true;
+    }
+    return false;
+  }
+  tryPushGauge(usedTime) {
+    if (this.canPushGauge(usedTime)) {
       const gauge = new Gauge(this, usedTime, this.getEffectTime(), this.getRecastTime());
       this.list.push(gauge);
       return gauge;
@@ -15,6 +21,7 @@ export default class GaugeList {
     return false;
   }
   canMoveGauge(gauge, time) {
+    console.log('time', time);
     if (!(this._isOverlapping(time, gauge))) {
       return true;
     }

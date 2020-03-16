@@ -34,7 +34,7 @@ ACTIONS_DATA.set("ナイト", [
     "name": "ランパート",
     "effectTime": 20,
     "recastTime": 90,
-    "fileName": "paladin/rampart.png"
+    "fileName": "paladin/Rampart.png"
     },
   {
     "name": "センチネル",

@@ -8,7 +8,7 @@ export default class Action {
     this.recastTime = recastTime;
     this.gaugeList = new GaugeList(effectTime, recastTime);
     this.fileName = fileName;
-    this.actionElements = new ActionElements(this, effectTime, recastTime, index)
+    this.actionElements = new ActionElements(effectTime, recastTime, this.gaugeList, fileName, index)
   }
   getEffectTime() {
     return this.effectTime;
