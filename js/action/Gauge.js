@@ -5,6 +5,7 @@ export default class Gauge {
     this.usedTime = usedTime;
     this.effectTime = effectTime;
     this.recastTime = recastTime;
+    this.holding = false;
   }
   getUsedTime() {
     return this.usedTime;
@@ -20,5 +21,16 @@ export default class Gauge {
   }
   getTimeDifference() {
     return this.recastTime - this.effectTime;
+  }
+  hold() {
+    this.holding = true;
+  }
+  unhold() {
+    this.holding = false;
+  }
+  isHolding() {
+    console.log(this.holding);
+    if (this.holding) return true;
+    return false;
   }
 }

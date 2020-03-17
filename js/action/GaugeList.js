@@ -54,6 +54,7 @@ export default class GaugeList {
       end = start + this.getRecastTime();
     for (let gauge of this.getList()) {
       if (gauge === excludeGauge) continue;
+      if (gauge.isHolding()) continue;
       // 使用した時間
       const targetStart = gauge.getUsedTime();
       // リキャが返ってくる時間
@@ -63,6 +64,41 @@ export default class GaugeList {
       }
     }
     return undefined;
+  }
+  getPlaceableSeconds(targetSeconds) {
+    let placeableSeconds = targetSeconds;
+    let minSeconds = -1 * (this.getRecastTime());
+    const overlappingGauge = this.getGaugeByTime(targetSeconds);
+    // 重なっているゲージが存在しなければ
+    if (!overlappingGauge) {
+      // ゲージ末尾が頂点より上だったら一秒分だけはみ出るようにする
+      if (targetSeconds <= minSeconds) placeableSeconds = minSeconds + 1;
+      return placeableSeconds;
+    }
+
+    const median = Math.floor(this.getRecastTime() / 2);
+    const usedTime = overlappingGauge.getUsedTime();
+    if (targetSeconds > usedTime + median) {
+      // targetSecondsが中央値より下だったら
+      // 重なっているゲージの上に詰める
+      placeableSeconds = usedTime + this.getRecastTime();
+    } else {
+      // targetSecondsの位置が中央より上だったら
+      // 重なっているゲージの上に詰める
+      placeableSeconds = usedTime - this.getRecastTime();
+    }
+
+    // 移動先にもゲージがあった場合は配置不可能
+    if (this.getGaugeByTime(placeableSeconds)) {
+      return false;
+    }
+
+    if (placeableSeconds <= minSeconds) {
+      // ゲージ末尾が頂点より上だったら配置不可能
+      return false;
+    }
+
+    return placeableSeconds;
   }
   getEffectTime() {
     return this.effectTime;

@@ -13,7 +13,7 @@ export default class GaugeElement {
     this.pageY;
 
     this.moved;
-    this.movementAmount = false;
+    this.seconds = false;
 
     this.floating = false;
 
@@ -28,9 +28,15 @@ export default class GaugeElement {
   _createGaugeElement(usedTime, effectTime, recastTime) {
     const template = document.querySelector('#gaugeTemplate'),
       clone = document.importNode(template.content, true);
+
     clone.querySelector('.effectTime').style.height = (CONSTANT.PIXELS_PER_SECONDS * effectTime) + 'px';
+
+    // 効果時間が0秒だったら非表示にしておく
+    if (effectTime <= 0) clone.querySelector('.effectTime').style.display = 'none';
+
     clone.querySelector('.recastTime').style.height = (CONSTANT.PIXELS_PER_SECONDS * (recastTime - effectTime)) + 'px';
     clone.children[0].style.top = this._usedTimeToPX(usedTime);
+
     return clone.children[0];
   }
   setGaugeOffset(usedTime) {
@@ -40,7 +46,6 @@ export default class GaugeElement {
     e.stopPropagation();
     console.log('mousedown', this.gauge.getUsedTime());
     // クリックした座標を記憶しておく
-    console.log(e.offsetY);
     this.offsetX = e.offsetX;
     this.offsetY = e.offsetY;
     this.pageX = e.pageX;
@@ -90,72 +95,39 @@ export default class GaugeElement {
   // ゲージを移動させる
   _moveGauge(absoluteY) {
     // コンテナ内におけるゲージのX座標[px]
-    let movementAmount = 0;
+    let mouseRelativePosY = 0;
     // マウスのY座標分を足す
-    movementAmount += absoluteY;
+    mouseRelativePosY += absoluteY;
     // コンテナ上部の余白を引く
-    movementAmount -= this.containerOffsetTop;
+    mouseRelativePosY -= this.containerOffsetTop;
     // クリック地点までずらす
-    movementAmount -= this.offsetY;
+    mouseRelativePosY -= this.offsetY;
 
     // データ内部のゲージの位置[秒]
-    let currentSeconds = (movementAmount) / CONSTANT.PIXELS_PER_SECONDS;
+    let currentSeconds = Math.floor(mouseRelativePosY / CONSTANT.PIXELS_PER_SECONDS);
 
-    // movementAmountの値が変わらなかったら終了
-    if (this.movementAmount == movementAmount) {
-      return false;
-    }
-
-    let overlappingGauge = this.gauge.parent.getGaugeByTime(currentSeconds, this.gauge);
-    // ゲージが重複していたら詰めて配置する
-    if (overlappingGauge) {
-      const median = Math.floor(this.gauge.getRecastTime() / 2);
-      const usedTime = overlappingGauge.getUsedTime();
-      const mousePosYSec = (movementAmount + this.offsetY) / CONSTANT.PIXELS_PER_SECONDS;
-      if (mousePosYSec > usedTime + median) {
-        // マウスの位置が中央値より下だったら
-        // 重なっているゲージの上に詰める
-        movementAmount = (usedTime + this.gauge.getRecastTime()) * CONSTANT.PIXELS_PER_SECONDS;
-      } else {
-        // マウスの位置が中央より上だったら
-        // 重なっているゲージの上に詰める
-        movementAmount = (usedTime - this.gauge.getRecastTime()) * CONSTANT.PIXELS_PER_SECONDS;
-      }
-
-      currentSeconds = (movementAmount) / CONSTANT.PIXELS_PER_SECONDS;
-      overlappingGauge = this.gauge.parent.getGaugeByTime(currentSeconds, this.gauge);
-      // 移動先にもゲージがあった場合は移動しない
-      if (overlappingGauge) return false;
-      // ゲージ末尾が頂点より上だったら移動しない
-      let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS - 1);
-      if (movementAmount < gaugeEnd) return false;
-    }
-
-
-    let gaugeEnd = -1 * (this.gauge.getRecastTime() * CONSTANT.PIXELS_PER_SECONDS);
-    console.log('gaugeEnd:', gaugeEnd, movementAmount);
-    // ゲージ末尾が頂点より上だったら一秒分だけはみ出るようにする
-    if (movementAmount <= gaugeEnd) movementAmount = gaugeEnd + CONSTANT.PIXELS_PER_SECONDS;
+    if (this.seconds == currentSeconds) return false;
 
     if (!this.moved) this.moved = true;
 
-    // PIXELS_PER_SECONDSで割った余りを引く
-    movementAmount -= movementAmount % CONSTANT.PIXELS_PER_SECONDS;
+    let placeableSeconds = this.gauge.parent.getPlaceableSeconds(currentSeconds);
 
-    // movementAmountを更新
-    this.movementAmount = movementAmount;
+    // secondsを更新
+    this.seconds = placeableSeconds;
 
     this.element.style.top = 0;
-    this.element.style.transform = 'translateY(' + movementAmount + 'px)';
+    this.element.style.transform = 'translateY(' + (placeableSeconds * CONSTANT.PIXELS_PER_SECONDS) + 'px)';
   }
   // 要素諸々を確保する
   _holding() {
     document.querySelector('#overlayForPointer').classList.remove('hidden');
     this.element.classList.add('holdingGauge');
+    this.gauge.hold();
   }
   // 要素諸々を開放する
   _unholding() {
     document.querySelector('#overlayForPointer').classList.add('hidden');
+    this.gauge.unhold();
     if (this.floating) {
       // ゲージを削除する
       this.gauge.parent.removeGauge(this.gauge);
@@ -164,9 +136,7 @@ export default class GaugeElement {
       // 動いたフラグがtrueならgaugeを移動させる
       if (this.moved) {
         this.moved = false;
-        console.log(this.movementAmount / CONSTANT.PIXELS_PER_SECONDS);
-        const seconds = Math.floor(this.movementAmount / CONSTANT.PIXELS_PER_SECONDS)
-        this.gauge.parent.tryMoveGauge(this.gauge, seconds);
+        this.gauge.parent.tryMoveGauge(this.gauge, this.seconds);
 
       }
       this.element.classList.remove('holdingGauge');
