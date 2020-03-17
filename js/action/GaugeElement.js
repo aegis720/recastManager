@@ -112,6 +112,8 @@ export default class GaugeElement {
 
     let placeableSeconds = this.gauge.parent.getPlaceableSeconds(currentSeconds);
 
+    if (placeableSeconds === false) return false;
+
     // secondsを更新
     this.seconds = placeableSeconds;
 
