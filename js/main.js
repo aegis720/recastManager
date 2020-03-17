@@ -18,13 +18,14 @@ const getActions = function (name) {
 const parseActions = function (actions, name) {
   if (!actions) return false;
   const actionList = new ActionList(name);
-  for (let i in actions) {
-
-    //    let action = new Action(actions[i].name, actions[i].effectTime, actions[i].recastTime, i, actions[i].fileName);
-    //    actionList.pushList(action);
-    let action = ActionList.buildAction(actions[i].name, actions[i].effectTime, actions[i].recastTime, i, actions[i].fileName)
-    actionList.pushAction(action);
-  }
+  actionList.init();
+  //  for(let i in actions) {
+  //
+  //    //    let action = new Action(actions[i].name, actions[i].effectTime, actions[i].recastTime, i, actions[i].fileName);
+  //    //    actionList.pushList(action);
+  //    let action = ActionList.buildAction(actions[i].name, actions[i].effectTime, actions[i].recastTime, i, actions[i].fileName)
+  //    actionList.pushAction(action);
+  //  }
   return actionList;
 }
 const loadActions = function (e) {

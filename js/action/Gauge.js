@@ -29,7 +29,6 @@ export default class Gauge {
     this.holding = false;
   }
   isHolding() {
-    console.log(this.holding);
     if (this.holding) return true;
     return false;
   }

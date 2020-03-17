@@ -1,4 +1,12 @@
 const ACTIONS_DATA = new Map();
+ACTIONS_DATA.set("suffix", [
+  {
+    "name": "お薬",
+    "effectTime": 30,
+    "recastTime": 270,
+    "fileName": "etc/tinctures_of_vitality.png"
+    }
+]);
 ACTIONS_DATA.set("ナイト", [
   {
     "name": "ファイト・オア・フライト",
@@ -41,12 +49,6 @@ ACTIONS_DATA.set("ナイト", [
     "effectTime": 15,
     "recastTime": 120,
     "fileName": "paladin/Sentinel.png"
-    },
-  {
-    "name": "お薬",
-    "effectTime": 30,
-    "recastTime": 270,
-    "fileName": "etc/tinctures_of_vitality.png"
     }
 ]);
 

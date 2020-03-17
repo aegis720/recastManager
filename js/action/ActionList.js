@@ -1,9 +1,31 @@
 import Action from './Action.js';
+import ACTIONS_DATA from '../data/ACTIONS_DATA.js';
+
 // アクションをまとめて管理するクラス
 export default class ActionList {
   constructor(name) {
     this.name = name;
+    this.currentIndex;
     this.list = [];
+  }
+  init() {
+    this.index = 0;
+
+    const preffixAction = ACTIONS_DATA.get("preffix");
+    if (preffixAction) this._pushActions(preffixAction);
+
+    const actions = ACTIONS_DATA.get(this.name);
+    this._pushActions(actions);
+
+    const suffixAction = ACTIONS_DATA.get("suffix");
+    if (suffixAction) this._pushActions(suffixAction);
+  }
+  _pushActions(actions) {
+    for (let actionData of actions) {
+      let action = ActionList.buildAction(actionData.name, actionData.effectTime, actionData.recastTime, this.index, actionData.fileName)
+      this.pushAction(action);
+      ++this.index;
+    }
   }
   static buildAction(name, effectTime, recastTime, index, fileName) {
     return new Action(name, effectTime, recastTime, index, fileName);
