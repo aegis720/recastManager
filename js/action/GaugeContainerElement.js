@@ -35,14 +35,25 @@ export default class GaugeContainerElement {
     if (canPush) {
       const gauge = this.gaugeList.tryPushGauge(seconds);
       this._pushGaugeElement(gauge);
+      return true;
+    }
+    return false;
+  }
+  _clickGaugeContainer(event) {
+    const seconds = Math.floor(event.offsetY / CONSTANT.PIXELS_PER_SECONDS);
+    const placeableSeconds = this.gaugeList.getPlaceableSeconds(seconds);
+
+    if (placeableSeconds == false) {
+      console.log("ゲージの追加に失敗しました。");
+      return false;
+    }
+
+    const added = this._addGauge(placeableSeconds);
+    if (added) {
       console.log("ゲージの追加に成功しました。");
     } else {
       console.log("ゲージの追加に失敗しました。");
     }
-  }
-  _clickGaugeContainer(event) {
-    const seconds = Math.floor(event.offsetY / CONSTANT.PIXELS_PER_SECONDS);
-    this._addGauge(seconds);
   }
   _mousemove(event) {
     if (this.oldPageY == event.pageY) return false;
@@ -58,15 +69,19 @@ export default class GaugeContainerElement {
     seconds = Math.floor(seconds / CONSTANT.PIXELS_PER_SECONDS);
 
     const contains = this.gaugeList.containsGaugeByPoint(seconds);
+    const placeableSeconds = this.gaugeList.getPlaceableSeconds(seconds);
 
-    if (contains) {
+    if (contains || !placeableSeconds) {
       this.previewGauge.invisible();
+      return false;
     } else {
       this.previewGauge.visible();
     }
 
-    const placeableSeconds = this.gaugeList.getPlaceableSeconds(seconds);
-    if (placeableSeconds == false) return false;
+    if (placeableSeconds == false) {
+      this.previewGauge.invisible();
+      return false;
+    };
 
     this.previewGauge.setSeconds(placeableSeconds);
   }
