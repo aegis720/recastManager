@@ -49,6 +49,19 @@ export default class GaugeList {
     }
     return true;
   }
+  containsGaugeByPoint(seconds) {
+    for (let gauge of this.getList()) {
+      // 使用した時間
+      const targetStart = gauge.getUsedTime();
+      // リキャが返ってくる時間
+      const targetEnd = targetStart + gauge.getRecastTime();
+
+      if (targetStart < seconds && seconds < targetEnd) {
+        return true;
+      }
+    }
+    return false;
+  }
   getGaugeByTime(time, excludeGauge) {
     const start = time,
       end = start + this.getRecastTime();

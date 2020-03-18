@@ -197,11 +197,16 @@ div.iconFrame img {
 }
 
 .effectTime,
+.recastTime,
+.previewGauge {
+  pointer-events: none;
+}
+
+.effectTime,
 .recastTime {
   border-style: solid;
   border-width: 1px;
   z-index: 5;
-  pointer-events: none;
 }
 
 .effectTime {
@@ -218,7 +223,6 @@ div.iconFrame img {
 
 .previewGauge {
   opacity: .5;
-  position: absolute;
 }
 
 .gaugeContainer {
